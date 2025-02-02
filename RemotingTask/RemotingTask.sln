@@ -11,6 +11,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RemotingTask.Server", "src\
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RemotingTask.Client", "src\RemotingTask.Client\RemotingTask.Client.csproj", "{B0704147-8401-4398-BB67-06BA28C1D142}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{0A1911A1-A614-45EB-81D1-22C80E786308}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RemotingTask.UnitTests", "tests\RemotingTask.UnitTests\RemotingTask.UnitTests.csproj", "{5AC558A1-E95F-4B28-A22D-0026B8C8248F}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -29,6 +33,10 @@ Global
 		{B0704147-8401-4398-BB67-06BA28C1D142}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{B0704147-8401-4398-BB67-06BA28C1D142}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{B0704147-8401-4398-BB67-06BA28C1D142}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5AC558A1-E95F-4B28-A22D-0026B8C8248F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5AC558A1-E95F-4B28-A22D-0026B8C8248F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5AC558A1-E95F-4B28-A22D-0026B8C8248F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5AC558A1-E95F-4B28-A22D-0026B8C8248F}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -37,5 +45,6 @@ Global
 		{2861C6E4-9AAB-43C7-AA68-78EEE7368225} = {8E222F35-4C3A-4DA3-B544-C32F1292877D}
 		{385DD6DE-32CE-4010-B717-6AE96BE6180F} = {8E222F35-4C3A-4DA3-B544-C32F1292877D}
 		{B0704147-8401-4398-BB67-06BA28C1D142} = {8E222F35-4C3A-4DA3-B544-C32F1292877D}
+		{5AC558A1-E95F-4B28-A22D-0026B8C8248F} = {0A1911A1-A614-45EB-81D1-22C80E786308}
 	EndGlobalSection
 EndGlobal

@@ -50,7 +50,14 @@ namespace RemotingTask.Server.Services
 
         public string DeleteProduct(int id)
         {
+            var product = _productRepository.GetProductById(id);
+            if (product is null)
+            {
+                return ResponseMessages.ProductNotFound;
+            }
+            
             var isDeleted = _productRepository.DeleteProduct(id);
+            
             if (isDeleted)
             {
                 return ResponseMessages.ProductDeletedSuccessfully;
