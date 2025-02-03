@@ -1,0 +1,12 @@
+
+
+services:
+  Database:
+    container_name: Remooting-Database
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    ports:
+      - 14330:1433
+    environment:
+      ACCEPT_EULA: Y
+      MSSQL_SA_PASSWORD: secret_pAssw0rd
+      MSSQL_PID: Developer

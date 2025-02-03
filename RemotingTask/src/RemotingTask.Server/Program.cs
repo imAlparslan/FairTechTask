@@ -1,6 +1,8 @@
-﻿using RemotingTask.Server.Services;
+﻿using RemotingTask.Server.Database;
+using RemotingTask.Server.Services;
 using System;
-using System.Data.SQLite;
+using System.Configuration;
+using System.Data.SqlClient;
 using System.Runtime.Remoting;
 using System.Runtime.Remoting.Channels;
 using System.Runtime.Remoting.Channels.Tcp;
@@ -11,17 +13,27 @@ namespace RemotingTask.Server
     {
         static void Main(string[] args)
         {
-            // read from config file
-            TcpChannel channel = new TcpChannel(1234);
-            ChannelServices.RegisterChannel(channel, false);
+            string tcpPort = ConfigurationManager.AppSettings["TcpPort"];
+
+            if (!string.IsNullOrEmpty(tcpPort) && int.TryParse(tcpPort, out int port))
+            {
+                TcpChannel channel = new TcpChannel(port);
+                ChannelServices.RegisterChannel(channel, false);
+            }
+            else
+            {
+                throw new Exception("Lütfen App.Config -> TcpPort ayarlarınızı kontrol edin");
+            }
+
             RemotingConfiguration.RegisterWellKnownServiceType(
                 typeof(ProductService),
                 "ProductService",
                 WellKnownObjectMode.Singleton);
 
+            Console.WriteLine("Server started...");
+
             DbInit();
 
-            Console.WriteLine("Server started...");
 
             Console.ReadLine();
         }
@@ -30,23 +42,110 @@ namespace RemotingTask.Server
         public static void DbInit()
         {
 
-            Console.WriteLine("Creating database...");
-            using (SQLiteConnection connection = new SQLiteConnection("Data Source=RemotingTask.db"))
+            try
+            {
+                var dbSettings = DatabaseSettings.Load();
+
+                // check database connection
+                var canConnect = CheckConnection(dbSettings.MasterDbConnectionString);
+                if (!canConnect)
+                {
+                    throw new Exception("Veri tabanı bağlantısı sağlanamadı");
+                }
+
+                //create database if not exists
+                var hasDatabase = CheckDbExists(dbSettings.MasterDbConnectionString, dbSettings.DBName);
+                if (!hasDatabase)
+                {
+                    CreateDatabase(dbSettings.MasterDbConnectionString, dbSettings.DBName);
+                }
+
+                //check table exists
+                var hasProductTable = CheckProductTableExists(dbSettings.applicationConnectionString);
+                if (!hasProductTable)
+                {
+                    CreateProductTable(dbSettings.applicationConnectionString);
+                }
+            }
+            catch (Exception)
+            {
+
+                throw;
+            }
+        }
+
+        private static bool CheckProductTableExists(string applicationConnectionString)
+        {
+            string sql = "SELECT COUNT(*) FROM sys.tables WHERE name = @tableName";
+            using (SqlConnection connection = new SqlConnection(applicationConnectionString))
             {
                 connection.Open();
+                using (SqlCommand command = new SqlCommand(sql, connection))
+                {
+                    command.Parameters.AddWithValue("@tableName", "Product");
+                    int count = (int)command.ExecuteScalar();
+                    return (count > 0);
+                }
+            }
+        }
 
-                var tableCreateCommand = connection.CreateCommand();
-
-                tableCreateCommand.CommandText = @"CREATE TABLE IF NOT EXISTS Products (
-                    Id INTEGER PRIMARY KEY AUTOINCREMENT,
-                    Name TEXT NOT NULL,
-                    Price REAL NOT NULL
+        static void CreateProductTable(string applicationConnectionString)
+        {
+            string sql = @"
+                CREATE TABLE [dbo].[Product] (
+                    [Id] INT IDENTITY(1,1) NOT NULL PRIMARY KEY,
+                    [Name] NVARCHAR(100) NOT NULL,
+                    [Price] DECIMAL(18, 2) NOT NULL
                 )";
 
+            using (SqlConnection connection = new SqlConnection(applicationConnectionString))
+            {
+                connection.Open();
+                using (SqlCommand command = new SqlCommand(sql, connection))
+                {
+                    command.ExecuteNonQuery();
+                    Console.WriteLine("Product tablosu oluşturuldu.");
+                }
+            }
+        }
+        static void CreateDatabase(string connectionString, string dbName)
+        {
+            string query = $"CREATE DATABASE [{dbName}]";
+            using (SqlConnection connection = new SqlConnection(connectionString))
+            {
+                SqlCommand command = new SqlCommand(query, connection);
+                connection.Open();
+                command.ExecuteNonQuery();
+                Console.WriteLine($"{dbName} veritabanı oluşturuldu!");
+            }
+        }
 
-                tableCreateCommand.ExecuteNonQuery();
+        private static bool CheckDbExists(string connectionString, string dbName)
+        {
+            string query = $"SELECT database_id FROM sys.databases WHERE name = @DatabaseName";
+            using (SqlConnection connection = new SqlConnection(connectionString))
+            {
+                SqlCommand command = new SqlCommand(query, connection);
+                command.Parameters.AddWithValue("@DatabaseName", dbName);
+                connection.Open();
+                return command.ExecuteScalar() != null;
 
-            };
+            }
+        }
+        private static bool CheckConnection(string connectionString)
+        {
+            try
+            {
+                using (SqlConnection connection = new SqlConnection(connectionString))
+                {
+                    connection.Open();
+                    return true;
+                }
+            }
+            catch (Exception)
+            {
+                return false;
+            }
 
         }
     }

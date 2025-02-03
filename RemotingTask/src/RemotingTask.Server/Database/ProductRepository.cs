@@ -1,37 +1,39 @@
 ﻿using RemotingTask.RemoteObjects;
 using System.Collections.Generic;
-using System.Data.SQLite;
+using System.Data.SqlClient;
 
 namespace RemotingTask.Server.Database
 {
     public class ProductRepository : IProductRepository
     {
+        private readonly string _connectionString;
+
+        public ProductRepository()
+        {
+            var dbsettings = DatabaseSettings.Load();
+            _connectionString = dbsettings.applicationConnectionString;
+        }
         public bool AddProduct(string name, decimal price)
         {
-
-            string command = "INSERT INTO Products (Name, Price) VALUES (@Name, @Price)";
-            using (SQLiteConnection connection = new SQLiteConnection("Data Source=RemotingTask.db"))
-            {
-                connection.Open();
-                using (SQLiteCommand insertCommand = new SQLiteCommand(command, connection))
-                {
-                    insertCommand.Parameters.AddWithValue("@Name", name);
-                    insertCommand.Parameters.AddWithValue("@Price", price);
-                    return insertCommand.ExecuteNonQuery() > 0;
-                }
-            }
+            SqlConnection con = new SqlConnection(_connectionString);
+            SqlCommand command = new SqlCommand("INSERT INTO Product (Name, Price) VALUES (@Name, @Price)",con);
+            command.Parameters.AddWithValue("@Name", name);
+            command.Parameters.AddWithValue("@Price", price);
+            con.Open();
+            return command.ExecuteNonQuery() > 0;
+            
         }
 
         public Product GetProductById(int id)
         {
-            string command = "SELECT * FROM Products WHERE Id = @Id";
-            using (SQLiteConnection connection = new SQLiteConnection("Data Source=RemotingTask.db"))
+            string command = "SELECT * FROM Product WHERE Id = @Id";
+            using (SqlConnection connection = new SqlConnection(_connectionString))
             {
                 connection.Open();
-                using (SQLiteCommand selectCommand = new SQLiteCommand(command, connection))
+                using (SqlCommand selectCommand = new SqlCommand(command, connection))
                 {
                     selectCommand.Parameters.AddWithValue("@Id", id);
-                    using (SQLiteDataReader reader = selectCommand.ExecuteReader())
+                    using (SqlDataReader reader = selectCommand.ExecuteReader())
                     {
                         if (reader.Read())
                         {
@@ -51,13 +53,13 @@ namespace RemotingTask.Server.Database
         public List<Product> GetAllProducts()
         {
             List<Product> products = new List<Product>();
-            string command = "SELECT * FROM Products";
-            using (SQLiteConnection connection = new SQLiteConnection("Data Source=RemotingTask.db"))
+            string command = "SELECT * FROM Product";
+            using (SqlConnection connection = new SqlConnection(_connectionString))
             {
                 connection.Open();
-                using (SQLiteCommand selectCommand = new SQLiteCommand(command, connection))
+                using (SqlCommand selectCommand = new SqlCommand(command, connection))
                 {
-                    using (SQLiteDataReader reader = selectCommand.ExecuteReader())
+                    using (SqlDataReader reader = selectCommand.ExecuteReader())
                     {
                         while (reader.Read())
                         {
@@ -76,11 +78,11 @@ namespace RemotingTask.Server.Database
 
         public bool DeleteProduct(int id)
         {
-            string command = "DELETE FROM Products WHERE Id = @Id";
-            using (SQLiteConnection connection = new SQLiteConnection("Data Source=RemotingTask.db"))
+            string command = "DELETE FROM Product WHERE Id = @Id";
+            using (SqlConnection connection = new SqlConnection(_connectionString))
             {
                 connection.Open();
-                using (SQLiteCommand deleteCommand = new SQLiteCommand(command, connection))
+                using (SqlCommand deleteCommand = new SqlCommand(command, connection))
                 {
                     deleteCommand.Parameters.AddWithValue("@Id", id);
                     return deleteCommand.ExecuteNonQuery() > 0;
@@ -90,11 +92,11 @@ namespace RemotingTask.Server.Database
 
         public bool UpdateProduct(int id, string name, decimal price)
         {
-            string command = "UPDATE Products SET Name = @Name, Price = @Price WHERE Id = @Id";
-            using (SQLiteConnection connection = new SQLiteConnection("Data Source=RemotingTask.db"))
+            string command = "UPDATE Product SET Name = @Name, Price = @Price WHERE Id = @Id";
+            using (SqlConnection connection = new SqlConnection(_connectionString))
             {
                 connection.Open();
-                using (SQLiteCommand updateCommand = new SQLiteCommand(command, connection))
+                using (SqlCommand updateCommand = new SqlCommand(command, connection))
                 {
                     updateCommand.Parameters.AddWithValue("@Name", name);
                     updateCommand.Parameters.AddWithValue("@Price", price);
@@ -106,14 +108,14 @@ namespace RemotingTask.Server.Database
 
         public bool ProductNameExists(string name)
         {
-            string command = "SELECT COUNT(*) FROM Products WHERE Name = @Name";
-            using (SQLiteConnection connection = new SQLiteConnection("Data Source=RemotingTask.db"))
+            string command = "SELECT COUNT(*) FROM Product WHERE Name = @Name";
+            using (SqlConnection connection = new SqlConnection(_connectionString))
             {
                 connection.Open();
-                using (SQLiteCommand selectCommand = new SQLiteCommand(command, connection))
+                using (SqlCommand selectCommand = new SqlCommand(command, connection))
                 {
                     selectCommand.Parameters.AddWithValue("@Name", name);
-                    return (long)selectCommand.ExecuteScalar() > 0;
+                    return (int)selectCommand.ExecuteScalar() > 0;
                 }
             }
         }

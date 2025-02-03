@@ -1,5 +1,6 @@
 ﻿using RemotingTask.RemoteObjects;
 using System;
+using System.Configuration;
 using System.Collections.Generic;
 using System.Runtime.Remoting.Channels;
 using System.Runtime.Remoting.Channels.Tcp;
@@ -19,12 +20,21 @@ namespace RemotingTask.Client
 
         private void MainForm_Load(object sender, EventArgs e)
         {
-            // conf dosyasından okunacak
-            TcpClientChannel tcpClient = new TcpClientChannel();
-            ChannelServices.RegisterChannel(tcpClient, false);
-            _productService = (IProductService)Activator.GetObject(typeof(IProductService), "tcp://localhost:1234/ProductService");
-            SetProductList();
+            try
+            {
+                string remoteAddr = ConfigurationManager.AppSettings["RemoteObjectAddr"];
 
+                TcpClientChannel tcpClient = new TcpClientChannel();
+                ChannelServices.RegisterChannel(tcpClient, false);
+                _productService = (IProductService)Activator.GetObject(typeof(IProductService), remoteAddr);
+                SetProductList();
+
+            }
+            catch (Exception)
+            {
+                throw new Exception("Uzak Nesne bağlantısı başarısız. App.Config -> RemoteObjectAddr ayarlarınızı kontrol edin " +
+                    "ve sunucunun çalışır durumda olduğundan emin olun.");
+            }
         }
         private void send_button_Click(object sender, EventArgs e)
         {
