@@ -1,6 +1,7 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using RemotingTask.RemoteObjects;
 using RemotingTask.Server.Common;
+using RemotingTask.Server.Database;
 using RemotingTask.Server.Services;
 using RemotingTask.UnitTests.TestDoubles;
 using System;
@@ -81,5 +82,16 @@ namespace RemotingTask.UnitTests.ProductServiceTests
             Assert.AreEqual(ResponseMessages.ProductNameAlreadyExists, result);
         }
 
+        [TestMethod]
+        public void UpdateProduct_ReturnsServerError_WhenExceptionOccur()
+        {
+            IProductRepository failRepo = new StubFailProductRepository();
+            IProductService productService = new ProductService(failRepo);
+
+            var result = productService.UpdateProduct(1, "name", 1.1m);
+
+            Assert.AreEqual(ResponseMessages.ServerError, result);
+
+        }
     }
 }

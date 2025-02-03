@@ -29,7 +29,7 @@ namespace RemotingTask.UnitTests.TestDoubles
             return this.FirstOrDefault(x => x.Id == id);
         }
 
-        public bool ProductNameExists(string name)
+        public bool IsProductNameExists(string name)
         {
             return this.Any(x => x.Name == name);
         }

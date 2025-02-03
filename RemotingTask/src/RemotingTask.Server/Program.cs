@@ -13,6 +13,7 @@ namespace RemotingTask.Server
     {
         static void Main(string[] args)
         {
+
             string tcpPort = ConfigurationManager.AppSettings["TcpPort"];
 
             if (!string.IsNullOrEmpty(tcpPort) && int.TryParse(tcpPort, out int port))
@@ -31,21 +32,20 @@ namespace RemotingTask.Server
                 WellKnownObjectMode.Singleton);
 
             Console.WriteLine("Server started...");
-
-            DbInit();
-
+           
+            var dbSettings = DatabaseSettings.Load();
+            
+            DbInit(dbSettings);
 
             Console.ReadLine();
         }
 
 
-        public static void DbInit()
+        public static void DbInit(DatabaseSettings dbSettings)
         {
 
             try
             {
-                var dbSettings = DatabaseSettings.Load();
-
                 // check database connection
                 var canConnect = CheckConnection(dbSettings.MasterDbConnectionString);
                 if (!canConnect)
@@ -69,7 +69,6 @@ namespace RemotingTask.Server
             }
             catch (Exception)
             {
-
                 throw;
             }
         }

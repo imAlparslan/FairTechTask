@@ -47,19 +47,32 @@
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
+    <Reference Include="System.Data" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="ProductRepositoryTests\AddProductTests.cs" />
+    <Compile Include="ProductRepositoryTests\BaseProductRepositoryTesting.cs" />
+    <Compile Include="ProductRepositoryTests\DeleteProductTests.cs" />
+    <Compile Include="ProductRepositoryTests\GetAllProductsTests.cs" />
+    <Compile Include="ProductRepositoryTests\GetProductByIdTests.cs" />
+    <Compile Include="ProductRepositoryTests\IsProductNameExistsTests.cs" />
+    <Compile Include="ProductRepositoryTests\UpdateProductTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\..\src\RemotingTask.RemoteObjects\RemotingTask.RemoteObjects.csproj">
+      <Project>{2861C6E4-9AAB-43C7-AA68-78EEE7368225}</Project>
+      <Name>RemotingTask.RemoteObjects</Name>
+    </ProjectReference>
     <ProjectReference Include="..\..\src\RemotingTask.Server\RemotingTask.Server.csproj">
       <Project>{385dd6de-32ce-4010-b717-6ae96be6180f}</Project>
       <Name>RemotingTask.Server</Name>
     </ProjectReference>
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(VSToolsPath)\TeamTest\Microsoft.TestTools.targets" Condition="Exists('$(VSToolsPath)\TeamTest\Microsoft.TestTools.targets')" />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">

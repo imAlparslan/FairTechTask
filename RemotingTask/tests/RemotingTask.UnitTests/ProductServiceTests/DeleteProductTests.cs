@@ -1,6 +1,7 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using RemotingTask.RemoteObjects;
 using RemotingTask.Server.Common;
+using RemotingTask.Server.Database;
 using RemotingTask.Server.Services;
 using RemotingTask.UnitTests.TestDoubles;
 
@@ -37,6 +38,18 @@ namespace RemotingTask.UnitTests.ProductServiceTests
             var result = _productService.DeleteProduct(id);
 
             Assert.AreEqual(ResponseMessages.ProductNotFound, result);
+        }
+
+        [TestMethod]
+        public void DeleteProduct_ReturnsServerError_WhenExceptionOccur()
+        {
+            IProductRepository failRepo = new StubFailProductRepository();
+            IProductService productService = new ProductService(failRepo);
+
+            var result = productService.DeleteProduct(1);
+
+            Assert.AreEqual(ResponseMessages.ServerError, result);
+
         }
     }
 }

@@ -20,81 +20,116 @@ namespace RemotingTask.Server.Services
         }
         public string AddProduct(string name, decimal price)
         {
-            if (IsProductNameInvalid(name))
+            try
             {
-                return ResponseMessages.ProductNameCannotBeEmpty;
-            }
-            if (IsProductPriceInvalid(price))
-            {
-                return ResponseMessages.ProductPriceCannotBeZeroOrNegative;
-            }
+                if (IsProductNameInvalid(name))
+                {
+                    return ResponseMessages.ProductNameCannotBeEmpty;
+                }
+                if (IsProductPriceInvalid(price))
+                {
+                    return ResponseMessages.ProductPriceCannotBeZeroOrNegative;
+                }
 
-            if (IsProductNameExists(name))
-            {
-                return ResponseMessages.ProductNameAlreadyExists;
-            }
-
-            var isAdded = _productRepository.AddProduct(name, price);
-
-            if (isAdded)
-            {
-                return ResponseMessages.ProductCreatedSuccessfully;
-            }
-            return ResponseMessages.ProductCouldNotBeAdded;
-        }
-
-        public List<Product> GetAllProducts()
-        {
-            return _productRepository.GetAllProducts();
-        }
-
-        public string DeleteProduct(int id)
-        {
-            var product = _productRepository.GetProductById(id);
-            if (product is null)
-            {
-                return ResponseMessages.ProductNotFound;
-            }
-            
-            var isDeleted = _productRepository.DeleteProduct(id);
-            
-            if (isDeleted)
-            {
-                return ResponseMessages.ProductDeletedSuccessfully;
-            }
-            return ResponseMessages.ProductCouldNotBeDeleted;
-        }
-
-        public string UpdateProduct(int id, string name, decimal price)
-        {
-            var product = _productRepository.GetProductById(id);
-            if (product is null)
-            {
-                return ResponseMessages.ProductNotFound;
-            }
-            if (product.Name != name)
-            {
                 if (IsProductNameExists(name))
                 {
                     return ResponseMessages.ProductNameAlreadyExists;
                 }
+
+                var isAdded = _productRepository.AddProduct(name, price);
+
+                if (isAdded)
+                {
+                    return ResponseMessages.ProductCreatedSuccessfully;
+                }
+                return ResponseMessages.ProductCouldNotBeAdded;
+
             }
-            if (IsProductNameInvalid(name))
+            catch (DatabaseException)
             {
-                return ResponseMessages.ProductNameCannotBeEmpty;
-            }
-            if (IsProductPriceInvalid(price))
-            {
-                return ResponseMessages.ProductPriceCannotBeZeroOrNegative;
+                return ResponseMessages.ServerError;
             }
 
-            var isUpdated = _productRepository.UpdateProduct(id, name, price);
+        }
 
-            if (isUpdated)
+        public List<Product> GetAllProducts()
+        {
+            try
             {
-                return ResponseMessages.ProductUpdatedSuccessfully;
+                return _productRepository.GetAllProducts();
+
             }
-            return ResponseMessages.ProductCouldNotBeUpdated;
+            catch (DatabaseException)
+            {
+
+                return new List<Product>();
+            }
+        }
+
+        public string DeleteProduct(int id)
+        {
+            try
+            {
+                var product = _productRepository.GetProductById(id);
+                if (product is null)
+                {
+                    return ResponseMessages.ProductNotFound;
+                }
+
+                var isDeleted = _productRepository.DeleteProduct(id);
+
+                if (isDeleted)
+                {
+                    return ResponseMessages.ProductDeletedSuccessfully;
+                }
+                return ResponseMessages.ProductCouldNotBeDeleted;
+            }
+            catch (DatabaseException)
+            {
+                return ResponseMessages.ServerError;
+            }
+
+        }
+
+        public string UpdateProduct(int id, string name, decimal price)
+        {
+            try
+            {
+                var product = _productRepository.GetProductById(id);
+                if (product is null)
+                {
+                    return ResponseMessages.ProductNotFound;
+                }
+                if (product.Name != name)
+                {
+                    if (IsProductNameExists(name))
+                    {
+                        return ResponseMessages.ProductNameAlreadyExists;
+                    }
+                }
+                if (IsProductNameInvalid(name))
+                {
+                    return ResponseMessages.ProductNameCannotBeEmpty;
+                }
+                if (IsProductPriceInvalid(price))
+                {
+                    return ResponseMessages.ProductPriceCannotBeZeroOrNegative;
+                }
+
+                var isUpdated = _productRepository.UpdateProduct(id, name, price);
+
+                if (isUpdated)
+                {
+                    return ResponseMessages.ProductUpdatedSuccessfully;
+                }
+                return ResponseMessages.ProductCouldNotBeUpdated;
+            }
+            catch (DatabaseException)
+            {
+                return ResponseMessages.ServerError;
+            }
+
+
         }
 
         private bool IsProductNameInvalid(string name)
@@ -104,7 +139,7 @@ namespace RemotingTask.Server.Services
 
         private bool IsProductNameExists(string name)
         {
-            return _productRepository.ProductNameExists(name);
+            return _productRepository.IsProductNameExists(name);
         }
         private bool IsProductPriceInvalid(decimal price)
         {

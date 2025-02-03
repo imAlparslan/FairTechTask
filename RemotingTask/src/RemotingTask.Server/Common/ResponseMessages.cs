@@ -13,5 +13,7 @@
         public const string ProductUpdatedSuccessfully = "Ürün güncellendi.";
         public const string ProductCouldNotBeUpdated = "Ürün güncellenemedi.";
 
+        public const string ServerError = "Sunucu gerekli işlemi gerçekleştiremedi";
+
     }
 }

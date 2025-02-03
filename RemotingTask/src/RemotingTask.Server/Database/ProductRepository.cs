@@ -1,4 +1,5 @@
 ﻿using RemotingTask.RemoteObjects;
+using System;
 using System.Collections.Generic;
 using System.Data.SqlClient;
 
@@ -13,110 +14,159 @@ namespace RemotingTask.Server.Database
             var dbsettings = DatabaseSettings.Load();
             _connectionString = dbsettings.applicationConnectionString;
         }
+        public ProductRepository(string connectionString)
+        {
+            _connectionString = connectionString;
+        }
         public bool AddProduct(string name, decimal price)
         {
-            SqlConnection con = new SqlConnection(_connectionString);
-            SqlCommand command = new SqlCommand("INSERT INTO Product (Name, Price) VALUES (@Name, @Price)",con);
-            command.Parameters.AddWithValue("@Name", name);
-            command.Parameters.AddWithValue("@Price", price);
-            con.Open();
-            return command.ExecuteNonQuery() > 0;
-            
+            try
+            {
+                SqlConnection con = new SqlConnection(_connectionString);
+                SqlCommand command = new SqlCommand("INSERT INTO Product (Name, Price) VALUES (@Name, @Price)", con);
+                command.Parameters.AddWithValue("@Name", name);
+                command.Parameters.AddWithValue("@Price", price);
+                con.Open();
+                return command.ExecuteNonQuery() > 0;
+            }
+            catch (Exception ex)
+            {
+                throw new DatabaseException("Veri tabanına erişim sağlanamadı", ex.InnerException);
+            }
+
         }
 
         public Product GetProductById(int id)
         {
-            string command = "SELECT * FROM Product WHERE Id = @Id";
-            using (SqlConnection connection = new SqlConnection(_connectionString))
+            try
             {
-                connection.Open();
-                using (SqlCommand selectCommand = new SqlCommand(command, connection))
+                string command = "SELECT * FROM Product WHERE Id = @Id";
+                using (SqlConnection connection = new SqlConnection(_connectionString))
                 {
-                    selectCommand.Parameters.AddWithValue("@Id", id);
-                    using (SqlDataReader reader = selectCommand.ExecuteReader())
+                    connection.Open();
+                    using (SqlCommand selectCommand = new SqlCommand(command, connection))
                     {
-                        if (reader.Read())
+                        selectCommand.Parameters.AddWithValue("@Id", id);
+                        using (SqlDataReader reader = selectCommand.ExecuteReader())
                         {
-                            return new Product
-                            (
-                                id: reader.GetInt32(0),
-                                name: reader.GetString(1),
-                                price: reader.GetDecimal(2)
-                            );
+                            if (reader.Read())
+                            {
+                                return new Product
+                                (
+                                    id: reader.GetInt32(0),
+                                    name: reader.GetString(1),
+                                    price: reader.GetDecimal(2)
+                                );
+                            }
                         }
                     }
                 }
+                return null;
             }
-            return null;
+            catch (Exception ex)
+            {
+                throw new DatabaseException("Veri tabanına erişim sağlanamadı", ex.InnerException);
+            }
+
         }
 
         public List<Product> GetAllProducts()
         {
-            List<Product> products = new List<Product>();
-            string command = "SELECT * FROM Product";
-            using (SqlConnection connection = new SqlConnection(_connectionString))
+            try
             {
-                connection.Open();
-                using (SqlCommand selectCommand = new SqlCommand(command, connection))
+                List<Product> products = new List<Product>();
+                string command = "SELECT * FROM Product";
+                using (SqlConnection connection = new SqlConnection(_connectionString))
                 {
-                    using (SqlDataReader reader = selectCommand.ExecuteReader())
+                    connection.Open();
+                    using (SqlCommand selectCommand = new SqlCommand(command, connection))
                     {
-                        while (reader.Read())
+                        using (SqlDataReader reader = selectCommand.ExecuteReader())
                         {
-                            products.Add(new Product
-                            (
-                                id: reader.GetInt32(0),
-                                name: reader.GetString(1),
-                                price: reader.GetDecimal(2)
-                            ));
+                            while (reader.Read())
+                            {
+                                products.Add(new Product
+                                (
+                                    id: reader.GetInt32(0),
+                                    name: reader.GetString(1),
+                                    price: reader.GetDecimal(2)
+                                ));
+                            }
                         }
                     }
                 }
+                return products;
             }
-            return products;
+            catch (Exception ex)
+            {
+                throw new DatabaseException("Veri tabanına erişim sağlanamadı", ex.InnerException);
+            }
         }
 
         public bool DeleteProduct(int id)
         {
-            string command = "DELETE FROM Product WHERE Id = @Id";
-            using (SqlConnection connection = new SqlConnection(_connectionString))
+            try
             {
-                connection.Open();
-                using (SqlCommand deleteCommand = new SqlCommand(command, connection))
+                string command = "DELETE FROM Product WHERE Id = @Id";
+                using (SqlConnection connection = new SqlConnection(_connectionString))
                 {
-                    deleteCommand.Parameters.AddWithValue("@Id", id);
-                    return deleteCommand.ExecuteNonQuery() > 0;
+                    connection.Open();
+                    using (SqlCommand deleteCommand = new SqlCommand(command, connection))
+                    {
+                        deleteCommand.Parameters.AddWithValue("@Id", id);
+                        return deleteCommand.ExecuteNonQuery() > 0;
+                    }
                 }
+            }
+            catch (Exception ex)
+            {
+                throw new DatabaseException("Veri tabanına erişim sağlanamadı", ex.InnerException);
             }
         }
 
         public bool UpdateProduct(int id, string name, decimal price)
         {
-            string command = "UPDATE Product SET Name = @Name, Price = @Price WHERE Id = @Id";
-            using (SqlConnection connection = new SqlConnection(_connectionString))
+            try
             {
-                connection.Open();
-                using (SqlCommand updateCommand = new SqlCommand(command, connection))
+                string command = "UPDATE Product SET Name = @Name, Price = @Price WHERE Id = @Id";
+                using (SqlConnection connection = new SqlConnection(_connectionString))
                 {
-                    updateCommand.Parameters.AddWithValue("@Name", name);
-                    updateCommand.Parameters.AddWithValue("@Price", price);
-                    updateCommand.Parameters.AddWithValue("@Id", id);
-                    return updateCommand.ExecuteNonQuery() > 0;
+                    connection.Open();
+                    using (SqlCommand updateCommand = new SqlCommand(command, connection))
+                    {
+                        updateCommand.Parameters.AddWithValue("@Name", name);
+                        updateCommand.Parameters.AddWithValue("@Price", price);
+                        updateCommand.Parameters.AddWithValue("@Id", id);
+                        return updateCommand.ExecuteNonQuery() > 0;
+                    }
                 }
             }
+            catch (Exception ex)
+            {
+                throw new DatabaseException("Veri tabanına erişim sağlanamadı", ex.InnerException);
+            }
+
+
         }
 
-        public bool ProductNameExists(string name)
+        public bool IsProductNameExists(string name)
         {
-            string command = "SELECT COUNT(*) FROM Product WHERE Name = @Name";
-            using (SqlConnection connection = new SqlConnection(_connectionString))
+            try
             {
-                connection.Open();
-                using (SqlCommand selectCommand = new SqlCommand(command, connection))
+                string command = "SELECT COUNT(*) FROM Product WHERE Name = @Name";
+                using (SqlConnection connection = new SqlConnection(_connectionString))
                 {
-                    selectCommand.Parameters.AddWithValue("@Name", name);
-                    return (int)selectCommand.ExecuteScalar() > 0;
+                    connection.Open();
+                    using (SqlCommand selectCommand = new SqlCommand(command, connection))
+                    {
+                        selectCommand.Parameters.AddWithValue("@Name", name);
+                        return (int)selectCommand.ExecuteScalar() > 0;
+                    }
                 }
+            }
+            catch (Exception ex)
+            {
+                throw new DatabaseException("Veri tabanına erişim sağlanamadı", ex.InnerException);
             }
         }
 

@@ -4,6 +4,20 @@ namespace RemotingTask.Server.Database
 {
     public class DatabaseSettings : ConfigurationSection
     {
+        internal DatabaseSettings(string dBHost, string dBPort, string dBName, string dBUser, string dBPW)
+        {
+            DBHost = dBHost;
+            DBPort = dBPort;
+            DBName = dBName;
+            DBUser = dBUser;
+            DBPW = dBPW;
+        }
+
+        public DatabaseSettings()
+        {
+            
+        }
+
         [ConfigurationProperty("DBHost", IsRequired = true)]
         public string DBHost
         {

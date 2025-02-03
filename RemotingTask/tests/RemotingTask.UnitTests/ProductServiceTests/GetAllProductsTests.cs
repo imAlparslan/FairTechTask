@@ -1,5 +1,7 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using RemotingTask.RemoteObjects;
+using RemotingTask.Server.Common;
+using RemotingTask.Server.Database;
 using RemotingTask.Server.Services;
 using RemotingTask.UnitTests.TestDoubles;
 
@@ -35,6 +37,19 @@ namespace RemotingTask.UnitTests.ProductServiceTests
             var result = _productService.GetAllProducts();
 
             Assert.AreEqual(0, result.Count);
+        }
+
+
+        [TestMethod]
+        public void GetAllProducts_ReturnsEmptyCollection_WhenExceptionOccur()
+        {
+            IProductRepository failRepo = new StubFailProductRepository();
+            IProductService productService = new ProductService(failRepo);
+
+            var result = productService.GetAllProducts();
+
+            Assert.AreEqual(0, result.Count);
+
         }
     }
 }

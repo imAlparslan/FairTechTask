@@ -10,3 +10,12 @@ services:
       ACCEPT_EULA: Y
       MSSQL_SA_PASSWORD: secret_pAssw0rd
       MSSQL_PID: Developer
+  Test-Database:
+    container_name: Test-Remoting-Database
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    ports:
+      - 14333:1433
+    environment:
+      ACCEPT_EULA: Y
+      MSSQL_SA_PASSWORD: secret_pAssw0rd
+      MSSQL_PID: Developer
