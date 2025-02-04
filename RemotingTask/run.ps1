@@ -1,10 +1,15 @@
 $RemotingLibPath = "src/RemotingTask.RemoteObjects/RemotingTask.RemoteObjects.csproj"
 $serverExePath = "src/RemotingTask.Server/bin/Debug/RemotingTask.Server.exe"
 $FormExePath = "src/RemotingTask.Client/bin/Debug/RemotingTask.Client.exe"
-$buildCommand = "dotnet build src\RemotingTask.RemoteObjects\"
+$buildRemoteObjectCommand = "dotnet build src\RemotingTask.RemoteObjects\"
+$buildClientCommand = "dotnet build src\RemotingTask.Client\"
+$buildServerCommand = "dotnet build src\RemotingTask.Server\"
 
-# Uzak sunucu objelerinin durduğu clsLib'i derler
-Invoke-Expression $buildCommand
+
+# Projeleri derler
+Invoke-Expression $buildRemoteObjectCommand
+Invoke-Expression $buildServerCommand
+Invoke-Expression $buildClientCommand
 
 # uzak sunucuyu başlatr
 Start-Process -FilePath $serverExePath
