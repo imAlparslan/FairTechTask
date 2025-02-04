@@ -1,4 +1,5 @@
-﻿using RemotingTask.Server.Database;
+﻿using RemotingTask.Server.Common;
+using RemotingTask.Server.Database;
 using RemotingTask.Server.Services;
 using System;
 using System.Configuration;
@@ -13,6 +14,7 @@ namespace RemotingTask.Server
     {
         static void Main(string[] args)
         {
+            Logger.Information("Sunucu başlatılıyor");
 
             string tcpPort = ConfigurationManager.AppSettings["TcpPort"];
 
@@ -23,6 +25,7 @@ namespace RemotingTask.Server
             }
             else
             {
+                Logger.Information("App.config hatalı");
                 throw new Exception("Lütfen App.Config -> TcpPort ayarlarınızı kontrol edin");
             }
 
@@ -31,12 +34,12 @@ namespace RemotingTask.Server
                 "ProductService",
                 WellKnownObjectMode.Singleton);
 
-            Console.WriteLine("Server started...");
-           
+
             var dbSettings = DatabaseSettings.Load();
-            
+
             DbInit(dbSettings);
 
+            Logger.Information("Sunucu Hazır");
             Console.ReadLine();
         }
 
@@ -46,6 +49,8 @@ namespace RemotingTask.Server
 
             try
             {
+                Logger.Information("Veri tabanı kontrolleri başlatılıyor");
+
                 // check database connection
                 var canConnect = CheckConnection(dbSettings.MasterDbConnectionString);
                 if (!canConnect)
@@ -54,9 +59,12 @@ namespace RemotingTask.Server
                 }
 
                 //create database if not exists
+                Logger.Information($"Veri tabanı {dbSettings.DBName} kontrol ediliyor");
                 var hasDatabase = CheckDbExists(dbSettings.MasterDbConnectionString, dbSettings.DBName);
                 if (!hasDatabase)
                 {
+                    Logger.Information($"Veri tabanı {dbSettings.DBName} bulunamadı");
+
                     CreateDatabase(dbSettings.MasterDbConnectionString, dbSettings.DBName);
                 }
 
@@ -64,6 +72,7 @@ namespace RemotingTask.Server
                 var hasProductTable = CheckProductTableExists(dbSettings.applicationConnectionString);
                 if (!hasProductTable)
                 {
+                    Logger.Information($"Product tablosu bulunamadı");
                     CreateProductTable(dbSettings.applicationConnectionString);
                 }
             }
@@ -75,6 +84,7 @@ namespace RemotingTask.Server
 
         private static bool CheckProductTableExists(string applicationConnectionString)
         {
+            Logger.Information($"Product tablosu kontrol ediliyor");
             string sql = "SELECT COUNT(*) FROM sys.tables WHERE name = @tableName";
             using (SqlConnection connection = new SqlConnection(applicationConnectionString))
             {
@@ -90,6 +100,7 @@ namespace RemotingTask.Server
 
         static void CreateProductTable(string applicationConnectionString)
         {
+            Logger.Information("Product tablosu oluşturuluyor");
             string sql = @"
                 CREATE TABLE [dbo].[Product] (
                     [Id] INT IDENTITY(1,1) NOT NULL PRIMARY KEY,
@@ -103,19 +114,21 @@ namespace RemotingTask.Server
                 using (SqlCommand command = new SqlCommand(sql, connection))
                 {
                     command.ExecuteNonQuery();
-                    Console.WriteLine("Product tablosu oluşturuldu.");
+                    Logger.Information("Product tablosu oluşturuldu.");
                 }
             }
         }
         static void CreateDatabase(string connectionString, string dbName)
         {
+            Logger.Information($"Veri tabanı {dbName} oluşturuluyor");
+
             string query = $"CREATE DATABASE [{dbName}]";
             using (SqlConnection connection = new SqlConnection(connectionString))
             {
                 SqlCommand command = new SqlCommand(query, connection);
                 connection.Open();
                 command.ExecuteNonQuery();
-                Console.WriteLine($"{dbName} veritabanı oluşturuldu!");
+                Logger.Information($"{dbName} veritabanı oluşturuldu!");
             }
         }
 
@@ -135,6 +148,7 @@ namespace RemotingTask.Server
         {
             try
             {
+                Logger.Information("Veri tabanına erişimi sağlandı");
                 using (SqlConnection connection = new SqlConnection(connectionString))
                 {
                     connection.Open();
@@ -143,6 +157,7 @@ namespace RemotingTask.Server
             }
             catch (Exception)
             {
+                Logger.Error("Veri tabanına erişimi sağlanamadı");
                 return false;
             }
 

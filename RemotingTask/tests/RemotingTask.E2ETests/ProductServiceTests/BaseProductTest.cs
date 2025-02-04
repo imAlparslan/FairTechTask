@@ -1,23 +1,28 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
+using RemotingTask.RemoteObjects;
 using RemotingTask.Server;
 using RemotingTask.Server.Database;
+using RemotingTask.Server.Services;
 using System.Data.SqlClient;
 
-namespace RemotingTask.IntegrationTests.ProductRepositoryTests
+namespace RemotingTask.E2ETests.ProductServiceTests
 {
-    public abstract class BaseProductRepositoryTesting
+    public abstract class BaseProductTest
     {
-        protected readonly IProductRepository _repository;
+        protected readonly IProductRepository _productRepository;
+        protected readonly IProductService _productService;
         private static DatabaseSettings setting;
-        protected BaseProductRepositoryTesting()
+        protected BaseProductTest()
         {
-            _repository = new ProductRepository(setting.applicationConnectionString);
+            _productRepository = new ProductRepository(setting.applicationConnectionString);
+            _productService = new ProductService(_productRepository);
             ResetDB(setting.applicationConnectionString);
         }
 
         [ClassInitialize(InheritanceBehavior.BeforeEachDerivedClass)]
         public static void ClassInitialize(TestContext testContext)
         {
+
             setting = DatabaseSettings.Load();
             Program.DbInit(setting);
         }

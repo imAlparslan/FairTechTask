@@ -260,6 +260,7 @@ namespace RemotingTask.Client
             // 
             // updateResponse_label
             // 
+            this.updateResponse_label.AutoSize = true;
             this.updateResponse_label.Font = new System.Drawing.Font("Microsoft Sans Serif", 10.8F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(162)));
             this.updateResponse_label.Location = new System.Drawing.Point(242, 305);
             this.updateResponse_label.Name = "updateResponse_label";

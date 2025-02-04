@@ -5,11 +5,11 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{368D2DDA-4F47-4664-A774-68645D4FD2FB}</ProjectGuid>
+    <ProjectGuid>{FD3772D8-BDFA-4B6F-9E36-6671A52FB416}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>RemotingTask.IntegrationTests</RootNamespace>
-    <AssemblyName>RemotingTask.IntegrationTests</AssemblyName>
+    <RootNamespace>RemotingTask.E2ETests</RootNamespace>
+    <AssemblyName>RemotingTask.E2ETests</AssemblyName>
     <TargetFrameworkVersion>v4.8</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <ProjectTypeGuids>{3AC096D0-A1C2-E12C-1390-A8335801FDAB};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
@@ -51,13 +51,11 @@
     <Reference Include="System.Data" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="ProductRepositoryTests\AddProductTests.cs" />
-    <Compile Include="ProductRepositoryTests\BaseProductRepositoryTesting.cs" />
-    <Compile Include="ProductRepositoryTests\DeleteProductTests.cs" />
-    <Compile Include="ProductRepositoryTests\GetAllProductsTests.cs" />
-    <Compile Include="ProductRepositoryTests\GetProductByIdTests.cs" />
-    <Compile Include="ProductRepositoryTests\IsProductNameExistsTests.cs" />
-    <Compile Include="ProductRepositoryTests\UpdateProductTests.cs" />
+    <Compile Include="ProductServiceTests\AddProductTests.cs" />
+    <Compile Include="ProductServiceTests\BaseProductTest.cs" />
+    <Compile Include="ProductServiceTests\DeleteProductTests.cs" />
+    <Compile Include="ProductServiceTests\GetAllProductsTests.cs" />
+    <Compile Include="ProductServiceTests\UpdateProductTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -70,11 +68,10 @@
       <Name>RemotingTask.RemoteObjects</Name>
     </ProjectReference>
     <ProjectReference Include="..\..\src\RemotingTask.Server\RemotingTask.Server.csproj">
-      <Project>{385dd6de-32ce-4010-b717-6ae96be6180f}</Project>
+      <Project>{385DD6DE-32CE-4010-B717-6AE96BE6180F}</Project>
       <Name>RemotingTask.Server</Name>
     </ProjectReference>
   </ItemGroup>
-  <ItemGroup />
   <Import Project="$(VSToolsPath)\TeamTest\Microsoft.TestTools.targets" Condition="Exists('$(VSToolsPath)\TeamTest\Microsoft.TestTools.targets')" />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">

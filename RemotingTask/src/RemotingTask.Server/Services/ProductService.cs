@@ -3,6 +3,8 @@ using RemotingTask.Server.Common;
 using RemotingTask.Server.Database;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
+using System.Xml.Linq;
 
 namespace RemotingTask.Server.Services
 {
@@ -22,32 +24,43 @@ namespace RemotingTask.Server.Services
         {
             try
             {
+                Logger.Information($"İşlem: 'AddProduct' Params: [name:{name}, price:{price}]");
                 if (IsProductNameInvalid(name))
                 {
+                    Logger.Information($"Sonuç: [{ResponseMessages.ProductNameCannotBeEmpty}]");
                     return ResponseMessages.ProductNameCannotBeEmpty;
                 }
                 if (IsProductPriceInvalid(price))
                 {
+                    Logger.Information($"Sonuç: [{ResponseMessages.ProductPriceCannotBeZeroOrNegative}]");
                     return ResponseMessages.ProductPriceCannotBeZeroOrNegative;
                 }
 
                 if (IsProductNameExists(name))
                 {
+                    Logger.Information($"Sonuç: [{ResponseMessages.ProductNameAlreadyExists}]");
                     return ResponseMessages.ProductNameAlreadyExists;
+
                 }
 
                 var isAdded = _productRepository.AddProduct(name, price);
 
                 if (isAdded)
                 {
+                    Logger.Information($"Sonuç: [{ResponseMessages.ProductCreatedSuccessfully}]");
                     return ResponseMessages.ProductCreatedSuccessfully;
                 }
+
+                Logger.Information($"Sonuç: [{ResponseMessages.ProductCouldNotBeAdded}]");
                 return ResponseMessages.ProductCouldNotBeAdded;
 
             }
-            catch (DatabaseException)
+            catch (DatabaseException ex)
             {
+                Logger.Error($"İşlem sırasında hata meydana geldi \n {ex.Message}");
+
                 return ResponseMessages.ServerError;
+
             }
 
         }
@@ -56,11 +69,16 @@ namespace RemotingTask.Server.Services
         {
             try
             {
-                return _productRepository.GetAllProducts();
+                Logger.Information($"İşlem: 'GetAllProducts'");
 
+                var result =  _productRepository.GetAllProducts();
+
+                Logger.Information($"Sonuç: 'Başarılı'");
+                return result;
             }
-            catch (DatabaseException)
+            catch (DatabaseException ex)
             {
+                Logger.Error($"İşlem sırasında hata meydana geldi \n {ex.Message}");
 
                 return new List<Product>();
             }
@@ -70,9 +88,12 @@ namespace RemotingTask.Server.Services
         {
             try
             {
+                Logger.Information($"İşlem: 'DeleteProduct' Params: [id:{id}]");
+
                 var product = _productRepository.GetProductById(id);
                 if (product is null)
                 {
+                    Logger.Information($"Sonuç: [{ResponseMessages.ProductNotFound}]");
                     return ResponseMessages.ProductNotFound;
                 }
 
@@ -80,12 +101,18 @@ namespace RemotingTask.Server.Services
 
                 if (isDeleted)
                 {
+                    Logger.Information($"Sonuç: [{ResponseMessages.ProductDeletedSuccessfully}]");
                     return ResponseMessages.ProductDeletedSuccessfully;
                 }
-                return ResponseMessages.ProductCouldNotBeDeleted;
+
+                Logger.Information($"Sonuç: [{ResponseMessages.ProductDeletedSuccessfully}]");
+                return ResponseMessages.ProductDeletedSuccessfully;
             }
-            catch (DatabaseException)
+            catch (DatabaseException ex) 
             {
+                Logger.Error($"İşlem sırasında hata meydana geldi \n {ex.Message}");
+                Logger.Information($"Sonuç: [{ResponseMessages.ServerError}]");
+
                 return ResponseMessages.ServerError;
             }
 
@@ -95,24 +122,30 @@ namespace RemotingTask.Server.Services
         {
             try
             {
+                Logger.Information($"İşlem: 'UpdateProduct' Params: [id:{id}, name:{name}, price:{price}]");
+
                 var product = _productRepository.GetProductById(id);
                 if (product is null)
                 {
+                    Logger.Information($"Sonuç: [{ResponseMessages.ProductNotFound}]");
                     return ResponseMessages.ProductNotFound;
                 }
                 if (product.Name != name)
                 {
                     if (IsProductNameExists(name))
                     {
+                        Logger.Information($"Sonuç: [{ResponseMessages.ProductNameAlreadyExists}]");
                         return ResponseMessages.ProductNameAlreadyExists;
                     }
                 }
                 if (IsProductNameInvalid(name))
                 {
+                    Logger.Information($"Sonuç: [{ResponseMessages.ProductNameCannotBeEmpty}]");
                     return ResponseMessages.ProductNameCannotBeEmpty;
                 }
                 if (IsProductPriceInvalid(price))
                 {
+                    Logger.Information($"Sonuç: [{ResponseMessages.ProductPriceCannotBeZeroOrNegative}]");
                     return ResponseMessages.ProductPriceCannotBeZeroOrNegative;
                 }
 
@@ -120,12 +153,18 @@ namespace RemotingTask.Server.Services
 
                 if (isUpdated)
                 {
+                    Logger.Information($"Sonuç: [{ResponseMessages.ProductUpdatedSuccessfully}]");
                     return ResponseMessages.ProductUpdatedSuccessfully;
                 }
+
+                Logger.Information($"Sonuç: [{ResponseMessages.ProductCouldNotBeUpdated}]");
                 return ResponseMessages.ProductCouldNotBeUpdated;
             }
-            catch (DatabaseException)
+            catch (DatabaseException ex)
             {
+                Logger.Error($"İşlem sırasında hata meydana geldi \n {ex.Message}");
+                
+                Logger.Information($"Sonuç: [{ResponseMessages.ServerError}]");
                 return ResponseMessages.ServerError;
             }
 
@@ -134,15 +173,21 @@ namespace RemotingTask.Server.Services
 
         private bool IsProductNameInvalid(string name)
         {
+            Logger.Information($"İşlem: 'IsProductNameInvalid' Params: [name:{name}]");
+
             return string.IsNullOrWhiteSpace(name);
         }
 
         private bool IsProductNameExists(string name)
         {
+            Logger.Information($"İşlem: 'IsProductNameExists' Params: [name:{name}]");
+
             return _productRepository.IsProductNameExists(name);
         }
         private bool IsProductPriceInvalid(decimal price)
         {
+            Logger.Information($"İşlem: 'IsProductPriceInvalid' Params: [name:{price}]");
+
             return price <= 0;
         }
     }

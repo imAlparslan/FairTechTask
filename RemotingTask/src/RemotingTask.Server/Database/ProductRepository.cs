@@ -1,4 +1,5 @@
 ﻿using RemotingTask.RemoteObjects;
+using RemotingTask.Server.Common;
 using System;
 using System.Collections.Generic;
 using System.Data.SqlClient;
@@ -145,8 +146,6 @@ namespace RemotingTask.Server.Database
             {
                 throw new DatabaseException("Veri tabanına erişim sağlanamadı", ex.InnerException);
             }
-
-
         }
 
         public bool IsProductNameExists(string name)
